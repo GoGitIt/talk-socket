@@ -6,31 +6,33 @@ let clients = [];
 
 let websocketServer = () => {
     
+    //Create HTTP server for WebSocket to utilize
     var server = http.createServer(function (request, response) {
-        // Not important for us. We're writing WebSocket server,
-        // not HTTP server
     });
 
+    //HTTP server listening
     server.listen(8080, function () {
         console.log((new Date()) + " HTTP Server is listening on port "
             + 8080);
     });
 
-    // create the server
+    //Create WebSocket server and attach to HTTP server
     WebsocketServer = new WebSocketServer({
         httpServer: server
     });
 
-    // WebSocket server
+    //When WebSocket server receives a request it gets handled here. Messages are considered requests.
     WebsocketServer.on('request', function (request) {
         var connection = request.accept('echo-protocol', request.origin);
+
+        //Keeps track of connected clients, adds them to the clients array and records their index within the array
         let index = clients.push(connection) - 1;
         console.log('New connection from client', 'Total clients: ', clients.length);
 
-        // This is the most important callback for us, we'll handle
-        // all messages from users here.
+        //Handles all messages sent from client with .send()
         connection.on('message', function (message) {
             console.log('Message received by server:', message);
+
             if (message.type === 'utf8') {
 
                 let messageObj = {
@@ -39,23 +41,24 @@ let websocketServer = () => {
                     text: message.utf8Data
                 };
 
+                //Store the last 100 messages so we can keep newly connected users up to date with the conversation
                 history.push(messageObj);
                 history = history.slice(-100);
 
+                //Create a message object so we can store some additional info like timestamp
                 let jsonPackage = JSON.stringify({type: 'message', data: messageObj});
+
+                //Send the new message to all currently connected clients
                 for (client in clients) {
                     clients[client].sendUTF(jsonPackage);
                 }
-                
-                // process WebSocket message
-                console.log('New Message:', message);
-                connection.sendUTF(message.utf8Data);
             }
         });
 
         connection.on('close', function (connection) {
-            // close user connection
             console.log('Connection closed!');
+
+            //Remove user from list of connected clients upon disconnecting
             clients.splice(index, 1);
         });
     });
