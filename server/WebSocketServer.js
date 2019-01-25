@@ -23,7 +23,7 @@ let websocketServer = () => {
 
     //When WebSocket server receives a request it gets handled here. Messages are considered requests.
     WebsocketServer.on('request', function (request) {
-        var connection = request.accept('echo-protocol', request.origin);
+        var connection = request.accept(null, request.origin);
 
         //Keeps track of connected clients, adds them to the clients array and records their index within the array
         let index = clients.push(connection) - 1;
@@ -37,7 +37,7 @@ let websocketServer = () => {
 
                 let messageObj = {
                     time: (new Date()).getTime(),
-                    author: 'noUsersYet',
+                    username: 'noUsersYet',
                     text: message.utf8Data
                 };
 
