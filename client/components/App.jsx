@@ -10,14 +10,13 @@ class App extends React.Component {
             messages: []
         }
         this.handleIncomingMessage = this.handleIncomingMessage.bind(this);
-        this.test = this.test.bind(this);
+        this.sendMessage = this.sendMessage.bind(this);
 
         this.connection = new WebSocket('ws://localhost:8080', 'echo-protocol');
 
         this.connection.onopen = () => {
             console.log('Connected to websocket server');
             this.setState({ connected: true });
-            this.connection.send('Hello server!');
         }
 
         this.connection.onmessage = (m) => {
@@ -35,7 +34,7 @@ class App extends React.Component {
         this.setState({messages: oldMessages});
     }
 
-    test(message) {
+    sendMessage(message) {
         console.log('?', document.getElementsByClassName('text')[0].value);
         this.connection.send(document.getElementsByClassName('text')[0].value);
     }
@@ -46,7 +45,7 @@ class App extends React.Component {
             {this.state.messages.map((m) => {return <div>{m}</div>})}
             <form><input className={'text'}></input>
             </form>
-            <button onClick={this.test}> Send message </button>
+            <button onClick={this.sendMessage}> Send message </button>
         </div>);
     }
 }
